@@ -14,6 +14,8 @@ export interface AppUser {
   phoneNumber: string;
   role: UserRole;
   createdAt: number; // epoch ms
+  /** UID of the Senior this employee is assigned to. Null/undefined if unassigned. */
+  seniorId?: string | null;
 }
 
 // ── Visit ─────────────────────────────────────────────────────────────────────

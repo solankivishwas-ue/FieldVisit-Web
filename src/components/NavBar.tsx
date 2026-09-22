@@ -1,12 +1,12 @@
-// NavBar — shared top navigation bar used by both employee and manager dashboards.
+﻿// NavBar â€” shared top navigation bar used by both employee and manager dashboards.
 //
 // Shows:
-//  • App logo / title (left)
-//  • "Visits" nav link (highlights active when on the dashboard route)
-//  • Role badge (right cluster, hidden on mobile)
-//  • User's display name (right, hidden on mobile)
-//  • Profile avatar button → /profile
-//  • Sign-out button
+//  â€¢ App logo / title (left)
+//  â€¢ "Visits" nav link (highlights active when on the dashboard route)
+//  â€¢ Role badge (right cluster, hidden on mobile)
+//  â€¢ User's display name (right, hidden on mobile)
+//  â€¢ Profile avatar button â†’ /profile
+//  â€¢ Sign-out button
 
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
@@ -48,6 +48,8 @@ export default function NavBar({ title }: NavBarProps) {
     location.pathname === '/employee' ||
     location.pathname === '/manager';
 
+  const teamActive = location.pathname.startsWith('/manager/team');
+
   const activeNavClass   = 'text-white font-semibold underline underline-offset-4 decoration-white/60';
   const inactiveNavClass = 'text-white/70 hover:text-white font-medium transition-colors';
 
@@ -69,13 +71,13 @@ export default function NavBar({ title }: NavBarProps) {
             </span>
             {title && (
               <>
-                <span className="text-white/40 select-none">·</span>
+                <span className="text-white/40 select-none">Â·</span>
                 <span className="text-sm font-semibold text-white/80">{title}</span>
               </>
             )}
           </div>
 
-          {/* Nav link — "Visits" */}
+          {/* Nav link â€” "Visits" */}
           <nav className="flex items-center gap-1" aria-label="Main navigation">
             <button
               type="button"
@@ -90,24 +92,38 @@ export default function NavBar({ title }: NavBarProps) {
               </svg>
               Visits
             </button>
+                      {/* Team link -- Manager only */}
+            {role === 'MANAGER' && (
+              <button
+                type="button"
+                onClick={() => navigate('/manager/team')}
+                className={`flex items-center gap-1.5 px-2 py-1 rounded text-sm ${teamActive ? activeNavClass : inactiveNavClass}`}
+                aria-current={teamActive ? 'page' : undefined}
+              >
+                <svg className="w-4 h-4 shrink-0" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                  <path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zm8 0a3 3 0 11-6 0 3 3 0 016 0zM6 16a5 5 0 0110 0v1H6v-1zm-6 0a5 5 0 018.58-3.56A7 7 0 006.07 17H0v-1z" />
+                </svg>
+                Team
+              </button>
+            )}
           </nav>
         </div>
 
         {/* Right: role badge + name + avatar + sign-out */}
         <div className="flex items-center gap-3 shrink-0">
-          {/* Role badge — hidden on small screens */}
+          {/* Role badge â€” hidden on small screens */}
           <span className={`hidden sm:inline-block text-xs font-bold px-2.5 py-1 rounded-full ${badge.className}`}>
             {badge.label}
           </span>
 
-          {/* User's name — hidden on small screens */}
+          {/* User's name â€” hidden on small screens */}
           {appUser?.name && (
             <span className="hidden sm:inline text-sm text-white/80 font-medium max-w-[140px] truncate">
               {appUser.name}
             </span>
           )}
 
-          {/* Avatar button → Profile page */}
+          {/* Avatar button â†’ Profile page */}
           <button
             type="button"
             onClick={() => navigate('/profile')}

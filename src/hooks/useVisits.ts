@@ -2,8 +2,10 @@
 // Page 1 is live onSnapshot (realtime). Pages 2+ appended via loadMore().
 // Resets to page 1 whenever uid, role, sort, or filters change.
 //
-// KEY CONSTRAINT: when a date range is active, sort.field is clamped to
-// createdAt here (in addition to the service enforcing it at query level).
+// Role behaviour:
+//   MANAGER  -> subscribeToAllVisits (all visits)
+//   SENIOR   -> subscribeToTeamVisits (assigned employees' visits)
+//   EMPLOYEE -> subscribeToEmployeeVisits (own visits only)
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { type QueryDocumentSnapshot } from 'firebase/firestore';
@@ -11,8 +13,10 @@ import { useAuth } from './useAuth';
 import {
   subscribeToEmployeeVisits,
   subscribeToAllVisits,
+  subscribeToTeamVisits,
   fetchEmployeeVisitsPage,
   fetchAllVisitsPage,
+  fetchTeamVisitsPage,
   DEFAULT_SORT,
   DEFAULT_FILTERS,
   hasDateRange,
@@ -20,6 +24,7 @@ import {
   type VisitSort,
   type VisitFilters,
 } from '../services/visits.service';
+import { getEmployeesBySenior } from '../services/users.service';
 import type { Visit } from '../types';
 import { friendlyFirestoreError } from '../utils/firestoreError';
 
@@ -28,17 +33,17 @@ export type { VisitSort, SortField, SortDir, VisitFilters } from '../services/vi
 export { DEFAULT_FILTERS, hasDateRange } from '../services/visits.service';
 
 export interface UseVisitsResult {
-  visits:      Visit[];
-  loading:     boolean;
-  error:       string | null;
-  hasMore:     boolean;
-  loadingMore: boolean;
-  loadMore:    () => void;
-  sort:        VisitSort;
-  setSort:     (s: VisitSort) => void;
-  filters:     VisitFilters;
-  setFilters:  (f: VisitFilters) => void;
-  effectiveSort: VisitSort;  // clamped sort exposed so UI can show disabled state
+  visits:        Visit[];
+  loading:       boolean;
+  error:         string | null;
+  hasMore:       boolean;
+  loadingMore:   boolean;
+  loadMore:      () => void;
+  sort:          VisitSort;
+  setSort:       (s: VisitSort) => void;
+  filters:       VisitFilters;
+  setFilters:    (f: VisitFilters) => void;
+  effectiveSort: VisitSort;
 }
 
 export function useVisits(): UseVisitsResult {
@@ -51,8 +56,8 @@ export function useVisits(): UseVisitsResult {
   const [loadingMore, setLoadingMore] = useState(false);
   const [sort,        setSort]        = useState<VisitSort>(DEFAULT_SORT);
   const [filters,     setFilters]     = useState<VisitFilters>(DEFAULT_FILTERS);
+  const [teamUids,    setTeamUids]    = useState<string[]>([]);
 
-  // Effective sort: clamp to createdAt when date range is active
   const effectiveSort: VisitSort = hasDateRange(filters)
     ? { field: 'createdAt', dir: sort.dir }
     : sort;
@@ -61,14 +66,20 @@ export function useVisits(): UseVisitsResult {
   const extraRef  = useRef<Visit[]>([]);
 
   const isManager = appUser?.role === 'MANAGER';
+  const isSenior  = appUser?.role === 'SENIOR';
+
+  // Load assigned employee UIDs when role is SENIOR
+  useEffect(() => {
+    if (!appUser || !isSenior) { setTeamUids([]); return; }
+    getEmployeesBySenior(appUser.uid)
+      .then((employees) => setTeamUids(employees.map((e) => e.uid)))
+      .catch(() => setTeamUids([]));
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [appUser?.uid, isSenior]);
 
   // Re-subscribe on any dependency change; resets to page 1
   useEffect(() => {
-    if (!appUser) {
-      setVisits([]);
-      setLoading(false);
-      return;
-    }
+    if (!appUser) { setVisits([]); setLoading(false); return; }
 
     setLoading(true);
     setError(null);
@@ -90,27 +101,36 @@ export function useVisits(): UseVisitsResult {
       setLoading(false);
     };
 
-    const unsub = isManager
-      ? subscribeToAllVisits(effectiveSort, filters, onData, onError)
-      : subscribeToEmployeeVisits(appUser.uid, effectiveSort, filters, onData, onError);
+    let unsub: () => void;
+    if (isManager) {
+      unsub = subscribeToAllVisits(effectiveSort, filters, onData, onError);
+    } else if (isSenior) {
+      unsub = subscribeToTeamVisits(teamUids, effectiveSort, filters, onData, onError);
+    } else {
+      unsub = subscribeToEmployeeVisits(appUser.uid, effectiveSort, filters, onData, onError);
+    }
 
     return unsub;
-  // Include filters fields + effective sort as deps
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     appUser?.uid, appUser?.role,
     effectiveSort.field, effectiveSort.dir,
     filters.purpose, filters.dateFrom, filters.dateTo,
+    teamUids,
   ]);
 
   const loadMore = useCallback(async () => {
     if (!appUser || !hasMore || loadingMore || !cursorRef.current) return;
     setLoadingMore(true);
     try {
-      const result = isManager
-        ? await fetchAllVisitsPage(effectiveSort, filters, cursorRef.current)
-        : await fetchEmployeeVisitsPage(appUser.uid, effectiveSort, filters, cursorRef.current);
-
+      let result: { visits: Visit[]; lastDoc: QueryDocumentSnapshot | null };
+      if (isManager) {
+        result = await fetchAllVisitsPage(effectiveSort, filters, cursorRef.current);
+      } else if (isSenior) {
+        result = await fetchTeamVisitsPage(teamUids, effectiveSort, filters, cursorRef.current);
+      } else {
+        result = await fetchEmployeeVisitsPage(appUser.uid, effectiveSort, filters, cursorRef.current);
+      }
       cursorRef.current = result.lastDoc;
       setHasMore(result.visits.length === PAGE_SIZE);
       extraRef.current = [...extraRef.current, ...result.visits];
@@ -120,7 +140,7 @@ export function useVisits(): UseVisitsResult {
     } finally {
       setLoadingMore(false);
     }
-  }, [appUser, hasMore, loadingMore, isManager, effectiveSort, filters]);
+  }, [appUser, hasMore, loadingMore, isManager, isSenior, teamUids, effectiveSort, filters]);
 
   const handleSetSort = useCallback((s: VisitSort) => {
     extraRef.current = [];

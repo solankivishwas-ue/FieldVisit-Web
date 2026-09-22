@@ -1,4 +1,4 @@
-﻿// Firestore visits collection service.
+// Firestore visits collection service.
 // Pagination: page 1 = onSnapshot (realtime); pages 2+ = getDocs + startAfter.
 // Sort:    createdAt asc/desc | purpose asc | clinicHospitalName asc
 // Filters: purpose == X | dateFrom >= | dateTo <= | clinic/employee = client-side
@@ -194,7 +194,56 @@ async function _fetchPage(
   return { visits, lastDoc: snap.docs[snap.docs.length - 1] ?? null };
 }
 
-// -- Single-document fetch (detail page bypass)
+// -- Senior: subscribe to visits for a list of employee UIDs
+// Firestore `in` operator supports up to 30 elements.
+export function subscribeToTeamVisits(
+  employeeUids: string[],
+  sort: VisitSort,
+  filters: VisitFilters,
+  onData: (visits: Visit[], lastDoc: QueryDocumentSnapshot | null) => void,
+  onError: (err: Error) => void,
+): Unsubscribe {
+  if (employeeUids.length === 0) {
+    onData([], null);
+    return () => {};
+  }
+  const uids = employeeUids.slice(0, 30);
+  const q = query(
+    collection(db, VISITS),
+    where('userId', 'in', uids),
+    ...filterConstraints(filters),
+    ...sortConstraints(sort, filters),
+    limit(PAGE_SIZE),
+  );
+  return onSnapshot(
+    q,
+    (snap) => {
+      const visits: Visit[] = snap.docs
+        .map((d) => { try { return docToVisit(d.id, d.data()); } catch { return null; } })
+        .filter((v): v is Visit => v !== null);
+      onData(visits, snap.docs[snap.docs.length - 1] ?? null);
+    },
+    onError,
+  );
+}
+
+export async function fetchTeamVisitsPage(
+  employeeUids: string[],
+  sort: VisitSort,
+  filters: VisitFilters,
+  cursor: DocumentSnapshot,
+): Promise<{ visits: Visit[]; lastDoc: QueryDocumentSnapshot | null }> {
+  if (employeeUids.length === 0) return { visits: [], lastDoc: null };
+  const uids = employeeUids.slice(0, 30);
+  return _fetchPage(query(
+    collection(db, VISITS),
+    where('userId', 'in', uids),
+    ...filterConstraints(filters),
+    ...sortConstraints(sort, filters),
+    startAfter(cursor),
+    limit(PAGE_SIZE),
+  ));
+}// -- Single-document fetch (detail page bypass)
 export async function fetchVisitById(visitId: string): Promise<Visit | null> {
   const snap = await getDoc(doc(db, VISITS, visitId));
   if (!snap.exists()) return null;
