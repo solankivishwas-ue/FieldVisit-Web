@@ -4,12 +4,11 @@
 //  • Purpose label (primary colour) + user name
 //  • Clinic / hospital name
 //  • Date/time of visit
-//  • SyncStatus badge (colour-coded)
 //
 // Clicking the card navigates to the detail page (handled by parent via onClick prop).
 
 import type { Visit } from '../types';
-import { purposeLabel, formatDateTime, syncMeta } from '../utils/helpers';
+import { purposeLabel, formatDateTime } from '../utils/helpers';
 
 interface VisitCardProps {
   visit: Visit;
@@ -19,8 +18,6 @@ interface VisitCardProps {
 }
 
 export default function VisitCard({ visit, onClick, showUser = false }: VisitCardProps) {
-  const sm = syncMeta(visit.syncStatus);
-
   return (
     <button
       type="button"
@@ -28,22 +25,14 @@ export default function VisitCard({ visit, onClick, showUser = false }: VisitCar
       className="w-full text-left bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow-md hover:border-blue-300 transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-1"
     >
       <div className="p-4">
-        {/* Row 1: purpose (title) + sync badge */}
-        <div className="flex items-start justify-between gap-2">
-          <div className="min-w-0">
-            <p className="text-base font-bold text-blue-700 dark:text-blue-400 leading-tight">
-              {purposeLabel(visit.purpose)}
-            </p>
-            {showUser && visit.userName && (
-              <p className="text-sm font-medium text-gray-700 mt-0.5">{visit.userName}</p>
-            )}
-          </div>
-          {/* SyncStatus badge */}
-          <span
-            className={`shrink-0 inline-block text-xs font-bold px-2 py-0.5 rounded border ${sm.bgClass} ${sm.textClass} ${sm.borderClass}`}
-          >
-            {sm.label}
-          </span>
+        {/* Row 1: purpose (title) + optional user name */}
+        <div className="min-w-0">
+          <p className="text-base font-bold text-blue-700 dark:text-blue-400 leading-tight">
+            {purposeLabel(visit.purpose)}
+          </p>
+          {showUser && visit.userName && (
+            <p className="text-sm font-medium text-gray-700 mt-0.5">{visit.userName}</p>
+          )}
         </div>
 
         {/* Row 2: clinic name */}
@@ -78,3 +67,4 @@ export default function VisitCard({ visit, onClick, showUser = false }: VisitCar
     </button>
   );
 }
+

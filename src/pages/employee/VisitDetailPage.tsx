@@ -6,7 +6,7 @@ import { deleteVisit, fetchVisitById } from '../../services/visits.service';
 import NavBar from '../../components/NavBar';
 import LoadingSpinner from '../../components/LoadingSpinner';
 import EditVisitModal from '../../components/EditVisitModal';
-import { purposeLabel, formatDateTime, formatDate, syncMeta } from '../../utils/helpers';
+import { purposeLabel, formatDateTime, formatDate } from '../../utils/helpers';
 import { friendlyFirestoreError } from '../../utils/firestoreError';
 import type { Visit } from '../../types';
 
@@ -41,7 +41,6 @@ export default function VisitDetailPage() {
   // Still waiting: list loading OR fallback fetch pending
   const detailLoading = loading || (visit === undefined);
 
-  const sm    = visit ? syncMeta(visit.syncStatus) : null;
   const withinWindow = visit ? (Date.now() - visit.createdAt) < EDIT_WINDOW_MS : false;
   const isOwner      = visit ? appUser?.uid === visit.userId : false;
   const canEdit      = isOwner && withinWindow;
@@ -95,14 +94,7 @@ export default function VisitDetailPage() {
           ← Back to visits
         </button>
         <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm p-5">
-          <div className="flex items-start justify-between gap-2">
-            <h1 className="text-xl font-bold text-blue-700 dark:text-blue-400">{purposeLabel(visit.purpose)}</h1>
-            {sm && (
-              <span className={`shrink-0 text-xs font-bold px-2.5 py-1 rounded border ${sm.bgClass} ${sm.textClass} ${sm.borderClass}`}>
-                {sm.label}
-              </span>
-            )}
-          </div>
+          <h1 className="text-xl font-bold text-blue-700 dark:text-blue-400">{purposeLabel(visit.purpose)}</h1>
           <p className="mt-1 text-xs text-gray-400 dark:text-gray-500">{formatDateTime(visit.createdAt)}</p>
         </div>
 

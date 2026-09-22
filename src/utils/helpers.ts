@@ -1,7 +1,7 @@
-// Shared utility helpers — date formatting, label maps, status colours.
+// Shared utility helpers — date formatting and label maps.
 // All date formatting uses epoch-ms timestamps (Long) matching Android's createdAt / updatedAt.
 
-import type { VisitPurpose, SyncStatus } from '../types';
+import type { VisitPurpose } from '../types';
 
 // ── Date / Time ───────────────────────────────────────────────────────────────
 
@@ -47,29 +47,6 @@ export const PURPOSE_LABELS: Record<VisitPurpose, string> = {
 
 export function purposeLabel(p: VisitPurpose): string {
   return PURPOSE_LABELS[p] ?? 'Other';
-}
-
-// ── SyncStatus display ────────────────────────────────────────────────────────
-// Mirrors SyncStatusBadge colours in Android VisitListScreen.
-
-export interface SyncMeta {
-  label: string;
-  /** Tailwind text colour class */
-  textClass: string;
-  /** Tailwind background colour class */
-  bgClass: string;
-  /** Tailwind border colour class */
-  borderClass: string;
-}
-
-export const SYNC_META: Record<SyncStatus, SyncMeta> = {
-  SYNCED:  { label: 'Synced',  textClass: 'text-blue-700',   bgClass: 'bg-blue-50',   borderClass: 'border-blue-300'  },
-  PENDING: { label: 'Pending', textClass: 'text-amber-700',  bgClass: 'bg-amber-50',  borderClass: 'border-amber-300' },
-  FAILED:  { label: 'Failed',  textClass: 'text-red-700',    bgClass: 'bg-red-50',    borderClass: 'border-red-300'   },
-};
-
-export function syncMeta(s: SyncStatus): SyncMeta {
-  return SYNC_META[s] ?? SYNC_META.SYNCED;
 }
 
 // ── Text helpers ──────────────────────────────────────────────────────────────
