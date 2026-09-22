@@ -1,0 +1,9 @@
+# Normalise line endings in the repo to LF; let git convert on checkout
+* text=auto eol=lf
+
+# Binaries
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.ico binary
+*.svg text eol=lf

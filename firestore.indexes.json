@@ -1,0 +1,91 @@
+{
+  "indexes": [
+    {
+      "collectionGroup": "visits",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "userId",    "order": "ASCENDING" },
+        { "fieldPath": "createdAt", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "visits",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "userId",    "order": "ASCENDING" },
+        { "fieldPath": "createdAt", "order": "ASCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "visits",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "userId",             "order": "ASCENDING" },
+        { "fieldPath": "purpose",            "order": "ASCENDING" },
+        { "fieldPath": "createdAt",          "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "visits",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "userId",             "order": "ASCENDING" },
+        { "fieldPath": "clinicHospitalName", "order": "ASCENDING" },
+        { "fieldPath": "createdAt",          "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "visits",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "purpose",            "order": "ASCENDING" },
+        { "fieldPath": "createdAt",          "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "visits",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "clinicHospitalName", "order": "ASCENDING" },
+        { "fieldPath": "createdAt",          "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "visits",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "userId",             "order": "ASCENDING" },
+        { "fieldPath": "purpose",            "order": "ASCENDING" },
+        { "fieldPath": "createdAt",          "order": "ASCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "visits",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "userId",             "order": "ASCENDING" },
+        { "fieldPath": "purpose",            "order": "ASCENDING" },
+        { "fieldPath": "clinicHospitalName", "order": "ASCENDING" },
+        { "fieldPath": "createdAt",          "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "visits",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "purpose",            "order": "ASCENDING" },
+        { "fieldPath": "createdAt",          "order": "ASCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "visits",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "purpose",            "order": "ASCENDING" },
+        { "fieldPath": "clinicHospitalName", "order": "ASCENDING" },
+        { "fieldPath": "createdAt",          "order": "DESCENDING" }
+      ]
+    }
+  ],
+  "fieldOverrides": []
+}

@@ -1,0 +1,58 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ── helpers ──────────────────────────────────────────────────────────────
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isVerified() {
+      return isSignedIn() && request.auth.token.email_verified == true;
+    }
+
+    function role() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role;
+    }
+
+    function isManager() {
+      return isVerified() && role() in ['MANAGER', 'SENIOR'];
+    }
+
+    function isOwner(uid) {
+      return isVerified() && request.auth.uid == uid;
+    }
+
+    // ── /users/{uid} ─────────────────────────────────────────────────────────
+    // • Any verified user can read their own document.
+    // • Only managers can read any user document.
+    // • Users can update their own profile fields (name, phone).
+    // • No one can delete user documents via client SDK.
+    match /users/{uid} {
+      allow read:   if isOwner(uid) || isManager();
+      allow create: if isManager();
+      allow update: if isOwner(uid) || isManager();
+      allow delete: if false;
+    }
+
+    // ── /visits/{visitId} ────────────────────────────────────────────────────
+    // • Employees can create visits for themselves.
+    // • Employees can read/update/delete only their own visits.
+    // • Managers can read all visits, update any visit, never delete.
+    //
+    // Field name is "userId" — this is the field written by both the Android
+    // app (VisitRepositoryImpl) and the web createVisit() service. It is also
+    // the field used by subscribeToEmployeeVisits() where('userId', '==', uid).
+    match /visits/{visitId} {
+      allow create: if isVerified()
+                    && request.resource.data.userId == request.auth.uid;
+
+      allow read:   if isOwner(resource.data.userId) || isManager();
+
+      allow update: if isOwner(resource.data.userId) || isManager();
+
+      allow delete: if isOwner(resource.data.userId);
+    }
+  }
+}
