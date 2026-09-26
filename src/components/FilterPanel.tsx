@@ -11,7 +11,7 @@
 
 import { useState } from 'react';
 import type { VisitFilters } from '../hooks/useVisits';
-import { DEFAULT_FILTERS, hasDateRange } from '../hooks/useVisits';
+import { DEFAULT_FILTERS } from '../hooks/useVisits';
 import type { EmployeeOption } from '../hooks/useEmployees';
 import type { VisitPurpose } from '../types';
 
@@ -64,7 +64,7 @@ export default function FilterPanel({
     setEmployeeId && setEmployeeId('');
   }
 
-  const dateRangeActive = hasDateRange(filters);
+  
 
   const inputClass = 'w-full rounded-lg border px-3 py-2.5 text-sm focus:outline-none focus:ring-2 ' + ring;
 
@@ -196,12 +196,6 @@ export default function FilterPanel({
 
 function epochToDateInput(ms: number): string {
   return new Date(ms).toISOString().slice(0, 10);
-}
-function dateInputToEpochStart(s: string): number {
-  return new Date(s + 'T00:00:00').getTime();
-}
-function dateInputToEpochEnd(s: string): number {
-  return new Date(s + 'T23:59:59.999').getTime();
 }
 
 function Chip({ label, chipBg, onRemove }: { label: string; chipBg: string; onRemove: () => void }) {

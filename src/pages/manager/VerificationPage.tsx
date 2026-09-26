@@ -1,15 +1,15 @@
-// VerificationPage — Step 7 end-to-end verification tool.
+// VerificationPage ï¿½ Step 7 end-to-end verification tool.
 // Runs automated Firestore integrity checks + displays the manual test protocol.
 //
-// Check 1 — /assignments collection integrity:
+// Check 1 ï¿½ /assignments collection integrity:
 //   Every doc has deterministic ID {seniorId}_{employeeId}, seniorId points to a
 //   real SENIOR/MANAGER user, employeeId to a real EMPLOYEE user.
 //
-// Check 2 — Cross-platform write consistency:
+// Check 2 ï¿½ Cross-platform write consistency:
 //   If Check 1 passes, a web-created assignment is readable by Android at the
 //   same path (same deterministic ID). Manual tests are printed below.
 //
-// Check 3 — /visits access gate:
+// Check 3 ï¿½ /visits access gate:
 //   getDoc(assignments/{seniorId}_{employeeId}) returns a real doc for each
 //   valid assignment. This is the exact path the /visits Firestore rule needs.
 
@@ -49,22 +49,22 @@ async function runVerification(): Promise<VerifyResult> {
     const employeeId = data['employeeId'] as string | undefined;
 
     if (!seniorId || !employeeId) {
-      badIdDocs.push({ docId, problem: `Missing field — seniorId:${seniorId ?? 'undef'} employeeId:${employeeId ?? 'undef'}` }); continue;
+      badIdDocs.push({ docId, problem: `Missing field ï¿½ seniorId:${seniorId ?? 'undef'} employeeId:${employeeId ?? 'undef'}` }); continue;
     }
     const expectedId = `${seniorId}_${employeeId}`;
-    if (docId !== expectedId) badIdDocs.push({ docId, problem: `ID mismatch — expected "${expectedId}"` });
+    if (docId !== expectedId) badIdDocs.push({ docId, problem: `ID mismatch ï¿½ expected "${expectedId}"` });
 
-    if (!userRoles.has(seniorId)) orphanSeniorDocs.push({ docId, problem: `seniorId "${seniorId}" — no /users doc` });
+    if (!userRoles.has(seniorId)) orphanSeniorDocs.push({ docId, problem: `seniorId "${seniorId}" ï¿½ no /users doc` });
     else if (userRoles.get(seniorId) !== 'SENIOR' && userRoles.get(seniorId) !== 'MANAGER')
       wrongRoleDocs.push({ docId, problem: `seniorId "${seniorId}" has role "${userRoles.get(seniorId)}" (want SENIOR/MANAGER)` });
 
-    if (!userRoles.has(employeeId)) orphanEmployeeDocs.push({ docId, problem: `employeeId "${employeeId}" — no /users doc` });
+    if (!userRoles.has(employeeId)) orphanEmployeeDocs.push({ docId, problem: `employeeId "${employeeId}" ï¿½ no /users doc` });
     else if (userRoles.get(employeeId) !== 'EMPLOYEE')
       wrongRoleDocs.push({ docId, problem: `employeeId "${employeeId}" has role "${userRoles.get(employeeId)}" (want EMPLOYEE)` });
 
     if (docId === expectedId) {
       const gate = await getDoc(doc(db, 'assignments', expectedId));
-      if (!gate.exists()) visitsGateIssues.push({ docId, problem: `getDoc returned missing — /visits rule will deny senior access` });
+      if (!gate.exists()) visitsGateIssues.push({ docId, problem: `getDoc returned missing ï¿½ /visits rule will deny senior access` });
     }
   }
 
@@ -115,7 +115,7 @@ export default function VerificationPage() {
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-      <NavBar title="Step 7 — End-to-End Verification" />
+      <NavBar title="Step 7 ï¿½ End-to-End Verification" />
       <main className="max-w-3xl mx-auto px-4 py-6 space-y-6">
 
         <button type="button" onClick={() => navigate('/manager/team')}
@@ -127,7 +127,7 @@ export default function VerificationPage() {
         </button>
 
         <div>
-          <h1 className="text-xl font-bold text-gray-800 dark:text-gray-100">Step 7 — End-to-End Verification</h1>
+          <h1 className="text-xl font-bold text-gray-800 dark:text-gray-100">Step 7 ï¿½ End-to-End Verification</h1>
           <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
             Automated Firestore integrity checks + manual test protocol for cross-platform verification.
           </p>
@@ -139,7 +139,7 @@ export default function VerificationPage() {
             {result ? 'Re-run Automated Checks' : 'Run Automated Checks'}
           </button>
         )}
-        {running && <LoadingSpinner message="Verifying /assignments integrity…" />}
+        {running && <LoadingSpinner message="Verifying /assignments integrityï¿½" />}
         {fatal && (
           <div className="rounded-xl border border-red-200 bg-red-50 dark:bg-red-900/10 dark:border-red-800 px-4 py-3 text-sm text-red-700 dark:text-red-400">
             <strong>Fatal error:</strong> {fatal}
@@ -151,7 +151,7 @@ export default function VerificationPage() {
             {result.overallStatus === 'pass' ? (
               <div className="rounded-2xl border border-green-200 dark:border-green-700 bg-green-50 dark:bg-green-900/20 px-5 py-3">
                 <p className="text-sm font-bold text-green-700 dark:text-green-300">
-                  ? All automated checks passed — {result.totalAssignments} assignment doc{result.totalAssignments !== 1 ? 's' : ''} verified.
+                  ? All automated checks passed ï¿½ {result.totalAssignments} assignment doc{result.totalAssignments !== 1 ? 's' : ''} verified.
                 </p>
               </div>
             ) : (
@@ -161,46 +161,46 @@ export default function VerificationPage() {
                   : 'border-amber-200 dark:border-amber-700 bg-amber-50 dark:bg-amber-900/20'
               }`}>
                 <p className={`text-sm font-bold ${result.overallStatus === 'fail' ? 'text-red-700 dark:text-red-300' : 'text-amber-700 dark:text-amber-300'}`}>
-                  {result.overallStatus === 'fail' ? '? Issues found — resolve before manual tests.' : '?? Minor issues — review below.'}
+                  {result.overallStatus === 'fail' ? '? Issues found ï¿½ resolve before manual tests.' : '?? Minor issues ï¿½ review below.'}
                 </p>
               </div>
             )}
 
-            <CheckCard title="Check 1a — Document ID format"
+            <CheckCard title="Check 1a ï¿½ Document ID format"
               status={result.badIdDocs.length === 0 ? 'pass' : 'fail'}
               summary={result.badIdDocs.length === 0
                 ? `All ${result.totalAssignments} docs have the correct {seniorId}_{employeeId} ID.`
                 : `${result.badIdDocs.length} doc(s) with wrong ID. Run /manager/fix-assignment-ids.`}
               issues={result.badIdDocs} />
-            <CheckCard title="Check 1b — Senior users exist in /users"
+            <CheckCard title="Check 1b ï¿½ Senior users exist in /users"
               status={result.orphanSeniorDocs.length === 0 ? 'pass' : 'warn'}
               summary={result.orphanSeniorDocs.length === 0
                 ? 'All seniorId values point to real /users documents.'
                 : `${result.orphanSeniorDocs.length} seniorId(s) have no /users doc.`}
               issues={result.orphanSeniorDocs} />
-            <CheckCard title="Check 1c — Employee users exist in /users"
+            <CheckCard title="Check 1c ï¿½ Employee users exist in /users"
               status={result.orphanEmployeeDocs.length === 0 ? 'pass' : 'warn'}
               summary={result.orphanEmployeeDocs.length === 0
                 ? 'All employeeId values point to real /users documents.'
                 : `${result.orphanEmployeeDocs.length} employeeId(s) have no /users doc.`}
               issues={result.orphanEmployeeDocs} />
-            <CheckCard title="Check 1d — Roles are correct"
+            <CheckCard title="Check 1d ï¿½ Roles are correct"
               status={result.wrongRoleDocs.length === 0 ? 'pass' : 'fail'}
               summary={result.wrongRoleDocs.length === 0
                 ? 'All seniorId users are SENIOR/MANAGER; all employeeId users are EMPLOYEE.'
                 : `${result.wrongRoleDocs.length} role mismatch(es) found.`}
               issues={result.wrongRoleDocs} />
-            <CheckCard title="Check 2 — Cross-platform write consistency"
+            <CheckCard title="Check 2 ï¿½ Cross-platform write consistency"
               status={result.crossPlatformOk ? 'pass' : 'fail'}
               summary={result.crossPlatformOk
                 ? 'All docs use the deterministic ID. Web-created assignments are readable by Android.'
                 : 'ID or orphan issues above mean web/Android may disagree. Fix Check 1 first.'}
               issues={[]} />
-            <CheckCard title="Check 3 — /visits access gate (getDoc verify)"
+            <CheckCard title="Check 3 ï¿½ /visits access gate (getDoc verify)"
               status={result.visitsGateIssues.length === 0 ? 'pass' : 'fail'}
               summary={result.visitsGateIssues.length === 0
                 ? `getDoc confirmed on all ${result.totalAssignments} correct-ID docs. /visits rule will grant senior access.`
-                : `${result.visitsGateIssues.length} doc(s) failed getDoc — /visits rule will deny senior access for those pairs.`}
+                : `${result.visitsGateIssues.length} doc(s) failed getDoc ï¿½ /visits rule will deny senior access for those pairs.`}
               issues={result.visitsGateIssues} />
           </div>
         )}
@@ -209,7 +209,7 @@ export default function VerificationPage() {
           <p className="text-sm font-bold text-indigo-700 dark:text-indigo-300">Manual Test Protocol (run after automated checks pass)</p>
 
           <div className="space-y-1">
-            <p className="text-xs font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-wide">Test 1 — Android ? Web</p>
+            <p className="text-xs font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-wide">Test 1 ï¿½ Android ? Web</p>
             <ol className="text-sm text-indigo-700 dark:text-indigo-400 space-y-1 list-decimal list-inside">
               <li>Open the Android app, log in as <strong>MANAGER</strong>.</li>
               <li>Assign an EMPLOYEE to a SENIOR using the Android team management UI.</li>
@@ -219,7 +219,7 @@ export default function VerificationPage() {
           </div>
 
           <div className="space-y-1">
-            <p className="text-xs font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-wide">Test 2 — Web ? Android</p>
+            <p className="text-xs font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-wide">Test 2 ï¿½ Web ? Android</p>
             <ol className="text-sm text-indigo-700 dark:text-indigo-400 space-y-1 list-decimal list-inside">
               <li>In this web app as <strong>MANAGER</strong>, open <a href="/manager/team/assign" className="underline">/manager/team/assign</a>.</li>
               <li>Select a SENIOR, click <strong>Assign</strong> on an EMPLOYEE.</li>
@@ -229,7 +229,7 @@ export default function VerificationPage() {
           </div>
 
           <div className="space-y-1">
-            <p className="text-xs font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-wide">Test 3 — Senior reads employee visits</p>
+            <p className="text-xs font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-wide">Test 3 ï¿½ Senior reads employee visits</p>
             <ol className="text-sm text-indigo-700 dark:text-indigo-400 space-y-1 list-decimal list-inside">
               <li>Log in as a <strong>SENIOR</strong> who has at least one EMPLOYEE assigned.</li>
               <li>Open <a href="/manager" className="underline">/manager</a> (the manager dashboard).</li>

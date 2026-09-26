@@ -40,12 +40,10 @@ const NavLinkItem = ({
   children,
   onClick,
   isActive,
-  href,
 }: {
   children: React.ReactNode;
   onClick?: () => void;
   isActive?: boolean;
-  href?: string;
 }) => (
   <button
     type="button"
