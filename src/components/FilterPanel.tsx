@@ -75,13 +75,12 @@ export default function FilterPanel({
         <button
           type='button'
           onClick={() => setOpen((o) => !o)}
-          className={'inline-flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl border text-sm font-medium transition-colors w-full sm:w-auto ' + (activeCount > 0 ? activeBg + ' ' + activeBorder + ' text-white' : 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-600 text-gray-600 dark:text-gray-300 hover:border-gray-400')}
+          className={'inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl border text-sm font-semibold transition-colors w-full sm:w-auto shadow-sm tracking-wide uppercase ' + (activeCount > 0 ? activeBg + ' ' + activeBorder + ' text-white' : 'bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-500 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700')}
         >
           <svg className='w-4 h-4 shrink-0' viewBox='0 0 20 20' fill='currentColor' aria-hidden='true'>
             <path fillRule='evenodd' d='M3 5a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3 5a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm2 5a1 1 0 011-1h2a1 1 0 110 2H9a1 1 0 01-1-1z' clipRule='evenodd' />
           </svg>
-          <span className='hidden sm:inline'>{activeCount > 0 ? 'Filters (' + activeCount + ')' : 'Filters'}</span>
-          <span className='sm:hidden'>{activeCount > 0 ? '(' + activeCount + ')' : ''}</span>
+          <span>{activeCount > 0 ? 'Filters (' + activeCount + ')' : 'Filters'}</span>
           <svg className={'w-4 h-4 shrink-0 transition-transform ' + (open ? 'rotate-180' : '')} viewBox='0 0 20 20' fill='currentColor' aria-hidden='true'>
             <path fillRule='evenodd' d='M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z' clipRule='evenodd' />
           </svg>

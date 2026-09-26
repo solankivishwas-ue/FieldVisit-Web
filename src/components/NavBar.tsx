@@ -126,6 +126,12 @@ export default function NavBar({ title }: NavBarProps) {
 
   return (
     <>
+      {/* 
+        Spacer for mobile to prevent content overlap with the floating hamburger.
+        Since the mobile button is fixed, this empty div gives it vertical space.
+      */}
+      <div className="md:hidden h-14 w-full" aria-hidden="true" />
+
       {/* Mobile hamburger button (hidden on desktop) */}
       <button
         type="button"
