@@ -1,17 +1,17 @@
-﻿// AppRouter â€” defines the full route tree for Phase 1â€“6.
+﻿// AppRouter — defines the full route tree for Phase 1–6.
 //
 // Route map:
-//  /login           â†’ LoginPage          (public; redirects away if already signed in)
-//  /employee/*      â†’ EmployeeDashboard  (requires auth + verified + any role)
-//  /manager/*       â†’ ManagerDashboard   (requires auth + verified + MANAGER|SENIOR)
-//  /profile         â†’ ProfilePage        (requires auth + verified; any role)
-//  /                â†’ smart redirect based on role (or /login if not authed)
-//  *                â†’ redirect to /
+//  /login           → LoginPage          (public; redirects away if already signed in)
+//  /employee/*      → EmployeeDashboard  (requires auth + verified + EMPLOYEE)
+//  /manager/*       → ManagerDashboard   (requires auth + verified + MANAGER|SENIOR)
+//  /profile         → ProfilePage        (requires auth + verified; any role)
+//  /                → smart redirect based on role (or /login if not authed)
+//  *                → redirect to /
 //
 // Role-based redirect on root /:
-//   MANAGER | SENIOR  â†’ /manager
-//   EMPLOYEE          â†’ /employee
-//   Not signed in     â†’ /login
+//   MANAGER | SENIOR  → /manager
+//   EMPLOYEE          → /employee
+//   Not signed in     → /login
 
 import { Navigate, Route, Routes } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
@@ -27,15 +27,19 @@ import TeamPage from '../pages/manager/TeamPage';
 import UserManagementPage from '../pages/manager/UserManagementPage';
 import AssignEmployeesPage from '../pages/manager/AssignEmployeesPage';
 import TeamHierarchyPage from '../pages/manager/TeamHierarchyPage';
+import MigratePage from '../pages/manager/MigratePage';
+import FixAssignmentIdsPage from '../pages/manager/FixAssignmentIdsPage';
+import CleanupSeniorIdPage from '../pages/manager/CleanupSeniorIdPage';
+import VerificationPage from '../pages/manager/VerificationPage';
 import ProfilePage from '../pages/ProfilePage';
 
-// â”€â”€ Root redirect â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// —— Root redirect ————————————————————————————————————————————————————————————
 // Decides where an authenticated user lands when they hit "/".
 
 function RootRedirect() {
   const { firebaseUser, appUser, loading } = useAuth();
 
-  if (loading) return <LoadingSpinner message="Loadingâ€¦" />;
+  if (loading) return <LoadingSpinner message="Loading…" />;
 
   if (!firebaseUser || !firebaseUser.emailVerified) {
     return <Navigate to="/login" replace />;
@@ -48,13 +52,13 @@ function RootRedirect() {
   return <Navigate to="/employee" replace />;
 }
 
-// â”€â”€ Public-only route â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// —— Public-only route ————————————————————————————————————————————————————————
 // Redirects away from /login if the user is already authenticated + verified.
 
 function PublicRoute({ children }: { children: React.ReactNode }) {
   const { firebaseUser, appUser, loading } = useAuth();
 
-  if (loading) return <LoadingSpinner message="Loadingâ€¦" />;
+  if (loading) return <LoadingSpinner message="Loading…" />;
 
   if (firebaseUser?.emailVerified) {
     const role = appUser?.role ?? 'EMPLOYEE';
@@ -69,7 +73,7 @@ function PublicRoute({ children }: { children: React.ReactNode }) {
   return <>{children}</>;
 }
 
-// â”€â”€ Router â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// —— Router ———————————————————————————————————————————————————————————————————
 
 export default function AppRouter() {
   return (
@@ -84,14 +88,18 @@ export default function AppRouter() {
         }
       />
 
-      {/* Employee routes â€” any authenticated + verified user */}
+      {/* Shared routes - any authenticated user */}
       <Route element={<ProtectedRoute />}>
-        <Route path="/employee"            element={<EmployeeDashboardPage />} />
-        <Route path="/employee/visits/:id" element={<EmployeeVisitDetailPage />} />
         <Route path="/profile"             element={<ProfilePage />} />
       </Route>
 
-      {/* Manager routes â€” MANAGER or SENIOR only */}
+      {/* Employee routes - EMPLOYEE only */}
+      <Route element={<ProtectedRoute allowedRoles={['EMPLOYEE']} />}>
+        <Route path="/employee"            element={<EmployeeDashboardPage />} />
+        <Route path="/employee/visits/:id" element={<EmployeeVisitDetailPage />} />
+      </Route>
+
+      {/* Manager routes — MANAGER or SENIOR only */}
       <Route element={<ProtectedRoute allowedRoles={['MANAGER', 'SENIOR']} />}>
         <Route path="/manager"            element={<ManagerDashboardPage />} />
         <Route path="/manager/visits/:id" element={<ManagerVisitDetailPage />} />
@@ -104,6 +112,10 @@ export default function AppRouter() {
         <Route path="/manager/team/users"      element={<UserManagementPage />} />
         <Route path="/manager/team/assign"     element={<AssignEmployeesPage />} />
         <Route path="/manager/team/hierarchy"  element={<TeamHierarchyPage />} />
+        <Route path="/manager/migrate"            element={<MigratePage />} />
+        <Route path="/manager/fix-assignment-ids"  element={<FixAssignmentIdsPage />} />
+        <Route path="/manager/cleanup-senior-id"   element={<CleanupSeniorIdPage />} />
+        <Route path="/manager/verify"              element={<VerificationPage />} />
       </Route>
 
       {/* Root redirect */}
@@ -114,4 +126,3 @@ export default function AppRouter() {
     </Routes>
   );
 }
-

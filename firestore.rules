@@ -16,12 +16,28 @@ service cloud.firestore {
       return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role;
     }
 
+    // isManager() — MANAGER or SENIOR. Used for /users and /visits where a
+    // Senior legitimately needs read access (e.g. viewing team members).
     function isManager() {
       return isVerified() && role() in ['MANAGER', 'SENIOR'];
     }
 
+    // isStrictManager() — MANAGER only. Used for /assignments writes so that
+    // only a Manager can assign / unassign employees, matching Android's
+    // AuthRepositoryImpl which gates assignEmployeeToSenior behind MANAGER.
+    function isStrictManager() {
+      return isVerified() && role() == 'MANAGER';
+    }
+
     function isOwner(uid) {
       return isVerified() && request.auth.uid == uid;
+    }
+
+    // userExists() — checks the caller has a /users/{uid} document.
+    // Copied verbatim from Android firestore.rules helper (line 12-14).
+    // Used only in /assignments to mirror Android's read gate exactly.
+    function userExists() {
+      return exists(/databases/$(database)/documents/users/$(request.auth.uid));
     }
 
     // ── /users/{uid} ─────────────────────────────────────────────────────────
@@ -34,6 +50,25 @@ service cloud.firestore {
       allow create: if isManager();
       allow update: if isOwner(uid) || isManager();
       allow delete: if false;
+    }
+
+    // ── /assignments/{assignmentId} ───────────────────────────────────────────
+    // Mirrors Android firestore.rules lines 46–56 exactly.
+    // Document ID format: {seniorId}_{employeeId}
+    // Fields: seniorId (string), employeeId (string)
+    //
+    // Read:  caller must be signed-in AND have a /users document, AND be one of:
+    //          • MANAGER (full collection access)
+    //          • the Senior named in seniorId
+    //          • the Employee named in employeeId
+    // Write: MANAGER only.
+    match /assignments/{assignmentId} {
+      allow read: if isSignedIn() && userExists() && (
+                    isStrictManager() ||
+                    resource.data.seniorId   == request.auth.uid ||
+                    resource.data.employeeId == request.auth.uid
+                  );
+      allow write: if isStrictManager();
     }
 
     // ── /visits/{visitId} ────────────────────────────────────────────────────

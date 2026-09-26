@@ -62,7 +62,9 @@ export default function EmployeeDashboardPage() {
 
   return (
     <div className='min-h-screen bg-gray-50 dark:bg-gray-900'>
-      <NavBar title='My Visits' />
+      <ErrorBoundary>
+        <NavBar title='My Visits' />
+      </ErrorBoundary>
       <main className='max-w-2xl mx-auto px-4 py-6 space-y-4 pb-24'>
         {/* Welcome + export */}
         <div className='flex flex-wrap items-start justify-between gap-2'>

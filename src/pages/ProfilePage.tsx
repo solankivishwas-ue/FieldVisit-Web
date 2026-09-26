@@ -16,6 +16,7 @@ import { useAuth } from '../hooks/useAuth';
 import { useTheme } from '../context/ThemeContext';
 import { firebaseSignOut } from '../services/auth.service';
 import NavBar from '../components/NavBar';
+import ErrorBoundary from '../components/ErrorBoundary';
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -57,7 +58,9 @@ export default function ProfilePage() {
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-      <NavBar title="Profile" />
+      <ErrorBoundary>
+        <NavBar title="Profile" />
+      </ErrorBoundary>
 
       <main className="max-w-lg mx-auto px-4 py-8 space-y-6">
 

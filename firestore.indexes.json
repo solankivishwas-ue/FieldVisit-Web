@@ -87,11 +87,11 @@
       ]
     },
     {
-      "collectionGroup": "users",
+      "collectionGroup": "assignments",
       "queryScope": "COLLECTION",
       "fields": [
-        { "fieldPath": "seniorId", "order": "ASCENDING" },
-        { "fieldPath": "name",     "order": "ASCENDING" }
+        { "fieldPath": "seniorId",   "order": "ASCENDING" },
+        { "fieldPath": "employeeId", "order": "ASCENDING" }
       ]
     }
   ],

@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useVisits } from '../../hooks/useVisits';
 import NavBar from '../../components/NavBar';
 import LoadingSpinner from '../../components/LoadingSpinner';
+import ErrorBoundary from '../../components/ErrorBoundary';
 import { visitsToCsv, downloadCsv, buildExportFilename } from '../../utils/exportCsv';
 
 function toDateInputVal(d: Date): string {
@@ -57,7 +58,9 @@ export default function ExportPage() {
   const today        = toDateInputVal(new Date());
   return (
     <div className="min-h-screen bg-gray-50">
-      <NavBar title="Export" />
+      <ErrorBoundary>
+        <NavBar title="Export" />
+      </ErrorBoundary>
       <main className="max-w-2xl mx-auto px-4 py-8 space-y-6">
         <div className="flex items-center gap-3">
           <button type="button" onClick={() => navigate('/manager')}

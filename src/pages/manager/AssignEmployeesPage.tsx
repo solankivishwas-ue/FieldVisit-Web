@@ -6,7 +6,8 @@ import { useEffect, useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import NavBar from '../../components/NavBar';
 import LoadingSpinner from '../../components/LoadingSpinner';
-import { getAllUsers, assignEmployeeToSenior } from '../../services/users.service';
+import ErrorBoundary from '../../components/ErrorBoundary';
+import { getAllUsersWithAssignments, assignEmployeeToSenior } from '../../services/users.service';
 import type { AppUser } from '../../types';
 
 export default function AssignEmployeesPage() {
@@ -19,7 +20,7 @@ export default function AssignEmployeesPage() {
 
   useEffect(() => {
     setLoading(true);
-    getAllUsers()
+    getAllUsersWithAssignments()
       .then(setUsers)
       .catch(() => setError('Failed to load users.'))
       .finally(() => setLoading(false));
@@ -30,10 +31,11 @@ export default function AssignEmployeesPage() {
 
   async function handleToggle(employee: AppUser) {
     if (!selectedSenior) return;
-    const newSeniorId = employee.seniorId === selectedSenior ? null : selectedSenior;
+    const currentSeniorId = employee.seniorId ?? null;
+    const newSeniorId = currentSeniorId === selectedSenior ? null : selectedSenior;
     setUpdating(employee.uid);
     try {
-      await assignEmployeeToSenior(employee.uid, newSeniorId);
+      await assignEmployeeToSenior(employee.uid, newSeniorId, currentSeniorId);
       setUsers((prev) =>
         prev.map((u) => u.uid === employee.uid ? { ...u, seniorId: newSeniorId } : u),
       );
@@ -49,7 +51,9 @@ export default function AssignEmployeesPage() {
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-      <NavBar title="Assign Employees" />
+      <ErrorBoundary>
+        <NavBar title="Assign Employees" />
+      </ErrorBoundary>
       <main className="max-w-2xl mx-auto px-4 py-6 space-y-6">
         <button type="button" onClick={() => navigate('/manager/team')}
           className="flex items-center gap-1.5 text-sm text-indigo-600 dark:text-indigo-400 hover:underline">

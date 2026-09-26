@@ -7,7 +7,8 @@ import { useEffect, useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import NavBar from '../../components/NavBar';
 import LoadingSpinner from '../../components/LoadingSpinner';
-import { getAllUsers } from '../../services/users.service';
+import ErrorBoundary from '../../components/ErrorBoundary';
+import { getAllUsersWithAssignments } from '../../services/users.service';
 import type { AppUser } from '../../types';
 
 function PersonIcon({ className }: { className?: string }) {
@@ -43,7 +44,7 @@ export default function TeamHierarchyPage() {
 
   useEffect(() => {
     setLoading(true);
-    getAllUsers()
+    getAllUsersWithAssignments()
       .then(setUsers)
       .catch(() => setError('Failed to load team data.'))
       .finally(() => setLoading(false));
@@ -67,7 +68,9 @@ export default function TeamHierarchyPage() {
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-      <NavBar title="Team Hierarchy" />
+      <ErrorBoundary>
+        <NavBar title="Team Hierarchy" />
+      </ErrorBoundary>
       <main className="max-w-2xl mx-auto px-4 py-6 space-y-4">
         <button type="button" onClick={() => navigate('/manager/team')}
           className="flex items-center gap-1.5 text-sm text-indigo-600 dark:text-indigo-400 hover:underline">

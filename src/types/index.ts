@@ -7,6 +7,10 @@ export type UserRole = 'EMPLOYEE' | 'SENIOR' | 'MANAGER';
 
 // ── Firestore `users/{uid}` document ─────────────────────────────────────────
 // Mirrors Android: data class User(uid, name, email, phoneNumber, role, createdAt)
+// NOTE: seniorId is NOT a Firestore field on this document. It is a runtime-only
+// field hydrated from /assignments by getAllUsersWithAssignments(). The field is
+// kept optional here so UI code (AssignEmployeesPage, TeamHierarchyPage) that
+// reads emp.seniorId continues to work unchanged.
 export interface AppUser {
   uid: string;
   name: string;
@@ -14,7 +18,12 @@ export interface AppUser {
   phoneNumber: string;
   role: UserRole;
   createdAt: number; // epoch ms
-  /** UID of the Senior this employee is assigned to. Null/undefined if unassigned. */
+  /**
+   * Runtime-only — NOT stored in /users documents.
+   * Hydrated from /assignments/{seniorId}_{employeeId} by getAllUsersWithAssignments().
+   * undefined when the user was fetched without assignment data (getUserDoc, getAllUsers).
+   * null when the employee has no current assignment.
+   */
   seniorId?: string | null;
 }
 

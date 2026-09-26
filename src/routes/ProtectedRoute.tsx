@@ -1,4 +1,4 @@
-// ProtectedRoute — wraps routes that require authentication.
+﻿// ProtectedRoute — wraps routes that require authentication.
 //
 // Behaviour:
 //  • While auth is still resolving   → show LoadingSpinner (prevents flicker-redirect)
@@ -43,8 +43,8 @@ export default function ProtectedRoute({ allowedRoles }: ProtectedRouteProps) {
 
   // 4. Role gate (optional)
   if (allowedRoles && allowedRoles.length > 0) {
-    const userRole = appUser?.role;
-    if (!userRole || !allowedRoles.includes(userRole)) {
+    const userRole = appUser?.role ?? 'EMPLOYEE';
+    if (!allowedRoles.includes(userRole)) {
       // Redirect to the appropriate home page instead of login
       return <Navigate to="/" replace />;
     }
@@ -53,4 +53,3 @@ export default function ProtectedRoute({ allowedRoles }: ProtectedRouteProps) {
   // 5. All checks pass — render the nested route
   return <Outlet />;
 }
-

@@ -2,6 +2,8 @@
 
 import { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../../hooks/useAuth';
+
 import { useVisits, hasDateRange } from '../../hooks/useVisits';
 import type { VisitSort, SortField } from '../../hooks/useVisits';
 import { useEmployees } from '../../hooks/useEmployees';
@@ -10,6 +12,8 @@ import VisitCard from '../../components/VisitCard';
 import LoadingSpinner from '../../components/LoadingSpinner';
 import ErrorBoundary from '../../components/ErrorBoundary';
 import FilterPanel from '../../components/FilterPanel';
+import AddVisitModal from '../../components/AddVisitModal';
+
 
 interface SortOption { label: string; field: SortField; dir: 'asc' | 'desc'; }
 const SORT_OPTIONS: SortOption[] = [
@@ -20,11 +24,13 @@ const SORT_OPTIONS: SortOption[] = [
 ];
 
 export default function ManagerDashboardPage() {
+  const { appUser } = useAuth();
   const { visits, loading, error, hasMore, loadingMore, loadMore,
           setSort, filters, setFilters, effectiveSort } = useVisits();
   const { employees } = useEmployees();
   const navigate                       = useNavigate();
   const [searchQuery,  setSearchQuery] = useState('');
+  const [showModal,    setShowModal]   = useState(false);
   const [clinicQuery,  setClinicQuery] = useState('');
   const [employeeId,   setEmployeeId]  = useState('');
 
@@ -72,7 +78,9 @@ export default function ManagerDashboardPage() {
 
   return (
     <div className='min-h-screen bg-gray-50 dark:bg-gray-900'>
-      <NavBar title='All Visits' />
+      <ErrorBoundary>
+        <NavBar title='All Visits' />
+      </ErrorBoundary>
       <main className='max-w-3xl mx-auto px-4 py-6 space-y-4 pb-10'>
         {/* Header stats */}
         <div className='flex flex-wrap items-start justify-between gap-2'>
@@ -174,6 +182,16 @@ export default function ManagerDashboardPage() {
           </div>
         )}
       </main>
+      {/* FAB */}
+      <button type='button' onClick={()=>setShowModal(true)} aria-label='New Visit'
+        className='fixed bottom-6 right-6 z-40 w-14 h-14 rounded-full bg-indigo-600 shadow-lg hover:bg-indigo-700 active:scale-95 transition-all flex items-center justify-center'>
+        <svg className='w-7 h-7 text-white' viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='2.5' aria-hidden='true'>
+          <path strokeLinecap='round' strokeLinejoin='round' d='M12 4v16m8-8H4' />
+        </svg>
+      </button>
+      {showModal && appUser && (
+        <AddVisitModal uid={appUser.uid} userName={appUser.name} onClose={()=>setShowModal(false)} />
+      )}
     </div>
   );
 }

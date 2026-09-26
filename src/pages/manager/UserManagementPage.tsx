@@ -5,6 +5,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import NavBar from '../../components/NavBar';
 import LoadingSpinner from '../../components/LoadingSpinner';
+import ErrorBoundary from '../../components/ErrorBoundary';
 import { getAllUsers, updateUserRole } from '../../services/users.service';
 import type { AppUser, UserRole } from '../../types';
 
@@ -59,7 +60,9 @@ export default function UserManagementPage() {
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-      <NavBar title="User Management" />
+      <ErrorBoundary>
+        <NavBar title="User Management" />
+      </ErrorBoundary>
       <main className="max-w-2xl mx-auto px-4 py-6 space-y-4">
         <button
           type="button"

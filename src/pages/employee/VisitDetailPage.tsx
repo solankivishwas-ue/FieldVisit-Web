@@ -6,6 +6,7 @@ import { deleteVisit, fetchVisitById } from '../../services/visits.service';
 import NavBar from '../../components/NavBar';
 import LoadingSpinner from '../../components/LoadingSpinner';
 import EditVisitModal from '../../components/EditVisitModal';
+import ErrorBoundary from '../../components/ErrorBoundary';
 import { purposeLabel, formatDateTime, formatDate } from '../../utils/helpers';
 import { friendlyFirestoreError } from '../../utils/firestoreError';
 import type { Visit } from '../../types';
@@ -75,7 +76,9 @@ export default function VisitDetailPage() {
   if (!visit) {
     return (
       <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-        <NavBar title="Visit Detail" />
+        <ErrorBoundary>
+          <NavBar title="Visit Detail" />
+        </ErrorBoundary>
         <main className="max-w-2xl mx-auto px-4 py-10 text-center">
           <p className="text-gray-500 dark:text-gray-400">Visit not found.</p>
           <button type="button" onClick={() => navigate(-1)}
@@ -87,7 +90,9 @@ export default function VisitDetailPage() {
     );
   }  return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-      <NavBar title="Visit Detail" />
+      <ErrorBoundary>
+        <NavBar title="Visit Detail" />
+      </ErrorBoundary>
       <main className="max-w-2xl mx-auto px-4 py-6 space-y-4 pb-10">
         <button type="button" onClick={() => navigate(-1)}
           className="inline-flex items-center gap-1 text-sm text-blue-600 dark:text-blue-400 hover:text-blue-800 font-medium">

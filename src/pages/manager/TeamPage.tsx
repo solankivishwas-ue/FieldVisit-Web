@@ -3,6 +3,7 @@
 
 import { useNavigate } from 'react-router-dom';
 import NavBar from '../../components/NavBar';
+import ErrorBoundary from '../../components/ErrorBoundary';
 
 interface FeatureCard {
   title: string;
@@ -55,7 +56,9 @@ export default function TeamPage() {
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-      <NavBar title="Team" />
+      <ErrorBoundary>
+        <NavBar title="Team" />
+      </ErrorBoundary>
       <main className="max-w-2xl mx-auto px-4 py-8 space-y-4">
         <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-100">Team Management</h1>
         <p className="text-sm text-gray-500 dark:text-gray-400">
